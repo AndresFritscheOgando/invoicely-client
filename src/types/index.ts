@@ -30,6 +30,23 @@ export interface Vendor {
   updatedAt: string;
 }
 
+export interface InvoiceSummary {
+  id: string;
+  invoiceNumber: string;
+  vendorId: string;
+  vendorName: string;
+  createdByName: string;
+  amount: number;
+  currency: string;
+  issueDate: string;
+  dueDate: string;
+  status: InvoiceStatus;
+  paymentStatus: PaymentStatus;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface InvoiceItem {
   id: string;
   description: string;
@@ -42,9 +59,9 @@ export interface Invoice {
   id: string;
   invoiceNumber: string;
   vendorId: string;
-  vendor: Vendor;
+  vendorName: string;
   createdByUserId: string;
-  createdBy: User;
+  createdByName: string;
   amount: number;
   currency: string;
   issueDate: string;
@@ -56,6 +73,10 @@ export interface Invoice {
   items: InvoiceItem[];
   createdAt: string;
   updatedAt: string;
+  reviewedByUserId?: string;
+  reviewedByName?: string;
+  reviewedAt?: string;
+  rejectionReason?: string;
 }
 
 export interface Payment {
@@ -63,9 +84,9 @@ export interface Payment {
   invoiceId: string;
   amount: number;
   paymentDate: string;
-  paymentMethod: PaymentMethod;
+  paymentMethod: string;
   referenceNumber?: string;
-  createdBy: User;
+  createdByName: string;
   createdAt: string;
 }
 
