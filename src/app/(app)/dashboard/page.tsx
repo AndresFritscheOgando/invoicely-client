@@ -145,7 +145,7 @@ export default function DashboardPage() {
               <XAxis dataKey="label" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
               <Tooltip formatter={(v) => [`$${Number(v).toLocaleString()}`, "Amount"]} />
-              <Bar dataKey="amount" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="amount" fill="#3b82f6" radius={[4, 4, 0, 0]} isAnimationActive={false} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -165,6 +165,7 @@ export default function DashboardPage() {
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
+                  isAnimationActive={false}
                   label={({ name, percent }) =>
                     `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
                   }
