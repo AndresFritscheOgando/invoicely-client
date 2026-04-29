@@ -122,10 +122,29 @@ export interface AuthResponse {
   user: User;
 }
 
+export interface StatusBreakdown {
+  status: string;
+  count: number;
+}
+
+export interface MonthlySpend {
+  month: string;
+  amount: number;
+}
+
+export interface TopVendor {
+  vendorName: string;
+  totalAmount: number;
+  invoiceCount: number;
+}
+
 export interface DashboardStats {
   totalInvoices: number;
   pendingApproval: number;
   overdueInvoices: number;
   paidThisMonth: number;
   totalOutstanding: number;
+  statusBreakdown: StatusBreakdown[];
+  monthlySpend: MonthlySpend[];
+  topVendors: TopVendor[];
 }
