@@ -17,6 +17,13 @@ export interface User {
   createdAt: string;
 }
 
+export interface ActivityUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+}
+
 export interface Vendor {
   id: string;
   name: string;
@@ -93,14 +100,14 @@ export interface Payment {
 export interface InvoiceComment {
   id: string;
   invoiceId: string;
-  user: User;
+  user: ActivityUser;
   content: string;
   createdAt: string;
 }
 
 export interface AuditLog {
   id: string;
-  user: User;
+  user: ActivityUser;
   entityType: string;
   entityId: string;
   action: string;
@@ -136,6 +143,46 @@ export interface TopVendor {
   vendorName: string;
   totalAmount: number;
   invoiceCount: number;
+}
+
+export interface ReportRow {
+  id: string;
+  invoiceNumber: string;
+  vendorName: string;
+  createdByName: string;
+  amount: number;
+  currency: string;
+  issueDate: string;
+  dueDate: string;
+  status: InvoiceStatus;
+  paymentStatus: PaymentStatus;
+  createdAt: string;
+}
+
+export interface VendorBreakdown {
+  vendorName: string;
+  count: number;
+  totalAmount: number;
+}
+
+export interface MonthlyBreakdown {
+  month: string;
+  count: number;
+  totalAmount: number;
+}
+
+export interface ReportSummary {
+  totalCount: number;
+  totalAmount: number;
+  paidCount: number;
+  paidAmount: number;
+  unpaidCount: number;
+  unpaidAmount: number;
+  overdueCount: number;
+  overdueAmount: number;
+  rows: ReportRow[];
+  byVendor: VendorBreakdown[];
+  byMonth: MonthlyBreakdown[];
 }
 
 export interface DashboardStats {
