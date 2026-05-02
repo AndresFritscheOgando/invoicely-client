@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import type { Vendor } from "@/types";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const schema = z.object({
   name: z.string().min(1, "Name required").max(200),
@@ -58,20 +59,22 @@ export function VendorForm({ vendor, onClose }: VendorFormProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendors"] });
+      toast.success(isEdit ? "Vendor updated" : "Vendor added");
       onClose();
     },
+    onError: () => toast.error("Failed to save vendor"),
   });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-lg bg-white rounded-lg shadow-xl p-6">
+      <div className="w-full max-w-lg bg-card rounded-xl shadow-xl ring-1 ring-black/5 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-foreground">
             {isEdit ? "Edit Vendor" : "Add Vendor"}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+            className="text-muted-foreground hover:text-foreground text-xl leading-none"
           >
             ×
           </button>
@@ -79,74 +82,74 @@ export function VendorForm({ vendor, onClose }: VendorFormProps) {
 
         <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Name <span className="text-destructive">*</span>
             </label>
             <input
               {...register("name")}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
               placeholder="Acme Corp"
             />
             {errors.name && (
-              <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
+              <p className="mt-1 text-xs text-destructive">{errors.name.message}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Email <span className="text-destructive">*</span>
             </label>
             <input
               {...register("email")}
               type="email"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
               placeholder="billing@vendor.com"
             />
             {errors.email && (
-              <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
+              <p className="mt-1 text-xs text-destructive">{errors.email.message}</p>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Phone</label>
               <input
                 {...register("phone")}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
                 placeholder="+1 555 000 0000"
               />
               {errors.phone && (
-                <p className="mt-1 text-xs text-red-600">{errors.phone.message}</p>
+                <p className="mt-1 text-xs text-destructive">{errors.phone.message}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tax ID</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Tax ID</label>
               <input
                 {...register("taxId")}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
                 placeholder="12-3456789"
               />
               {errors.taxId && (
-                <p className="mt-1 text-xs text-red-600">{errors.taxId.message}</p>
+                <p className="mt-1 text-xs text-destructive">{errors.taxId.message}</p>
               )}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Address</label>
             <textarea
               {...register("address")}
               rows={2}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 resize-none"
               placeholder="123 Main St, City, State 12345"
             />
             {errors.address && (
-              <p className="mt-1 text-xs text-red-600">{errors.address.message}</p>
+              <p className="mt-1 text-xs text-destructive">{errors.address.message}</p>
             )}
           </div>
 
           {mutation.error && (
-            <p className="text-sm text-red-600">
+            <p className="text-sm text-destructive">
               {(mutation.error as { response?: { data?: { error?: string } } })
                 ?.response?.data?.error ?? "Something went wrong."}
             </p>

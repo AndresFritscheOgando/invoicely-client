@@ -97,12 +97,12 @@ export function InvoiceForm({ invoice, onClose }: InvoiceFormProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-2xl bg-white rounded-lg shadow-xl flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
+      <div className="w-full max-w-2xl bg-card rounded-xl shadow-xl ring-1 ring-black/5 flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <h2 className="text-lg font-semibold text-foreground">
             {isEdit ? `Edit Invoice ${invoice.invoiceNumber}` : "New Invoice"}
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl leading-none">
             ×
           </button>
         </div>
@@ -111,12 +111,12 @@ export function InvoiceForm({ invoice, onClose }: InvoiceFormProps) {
           <div className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Vendor <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Vendor <span className="text-destructive">*</span>
                 </label>
                 <select
                   {...register("vendorId")}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
                 >
                   <option value="">Select a vendor...</option>
                   {vendors.map((v) => (
@@ -124,43 +124,43 @@ export function InvoiceForm({ invoice, onClose }: InvoiceFormProps) {
                   ))}
                 </select>
                 {errors.vendorId && (
-                  <p className="mt-1 text-xs text-red-600">{errors.vendorId.message}</p>
+                  <p className="mt-1 text-xs text-destructive">{errors.vendorId.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Issue Date <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Issue Date <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="date"
                   {...register("issueDate")}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
                 />
                 {errors.issueDate && (
-                  <p className="mt-1 text-xs text-red-600">{errors.issueDate.message}</p>
+                  <p className="mt-1 text-xs text-destructive">{errors.issueDate.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Due Date <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Due Date <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="date"
                   {...register("dueDate")}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
                 />
                 {errors.dueDate && (
-                  <p className="mt-1 text-xs text-red-600">{errors.dueDate.message}</p>
+                  <p className="mt-1 text-xs text-destructive">{errors.dueDate.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Currency</label>
                 <select
                   {...register("currency")}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
                 >
                   <option value="USD">USD</option>
                   <option value="EUR">EUR</option>
@@ -170,11 +170,11 @@ export function InvoiceForm({ invoice, onClose }: InvoiceFormProps) {
               </div>
 
               <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Description</label>
                 <textarea
                   {...register("description")}
                   rows={2}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 resize-none"
                   placeholder="Optional notes..."
                 />
               </div>
@@ -182,31 +182,31 @@ export function InvoiceForm({ invoice, onClose }: InvoiceFormProps) {
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Line Items <span className="text-red-500">*</span>
+                <label className="text-sm font-medium text-foreground">
+                  Line Items <span className="text-destructive">*</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => append({ description: "", quantity: 1, unitPrice: 0 })}
-                  className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700"
+                  className="flex items-center gap-1 text-xs text-primary hover:text-primary/80"
                 >
                   <Plus className="h-3 w-3" />
                   Add Item
                 </button>
               </div>
 
-              <div className="border border-gray-200 rounded-md overflow-hidden">
+              <div className="border border-border rounded-md overflow-hidden">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-muted/50 border-b border-border">
                     <tr>
-                      <th className="text-left px-3 py-2 font-medium text-gray-600 w-full">Description</th>
-                      <th className="text-right px-3 py-2 font-medium text-gray-600 whitespace-nowrap w-20">Qty</th>
-                      <th className="text-right px-3 py-2 font-medium text-gray-600 whitespace-nowrap w-28">Unit Price</th>
-                      <th className="text-right px-3 py-2 font-medium text-gray-600 whitespace-nowrap w-24">Total</th>
+                      <th className="text-left px-3 py-2 font-medium text-muted-foreground w-full">Description</th>
+                      <th className="text-right px-3 py-2 font-medium text-muted-foreground whitespace-nowrap w-20">Qty</th>
+                      <th className="text-right px-3 py-2 font-medium text-muted-foreground whitespace-nowrap w-28">Unit Price</th>
+                      <th className="text-right px-3 py-2 font-medium text-muted-foreground whitespace-nowrap w-24">Total</th>
                       <th className="w-8" />
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-border">
                     {fields.map((field, index) => {
                       const q = Number(watchedItems?.[index]?.quantity) || 0;
                       const p = Number(watchedItems?.[index]?.unitPrice) || 0;
@@ -216,11 +216,11 @@ export function InvoiceForm({ invoice, onClose }: InvoiceFormProps) {
                           <td className="px-2 py-1.5">
                             <input
                               {...register(`items.${index}.description`)}
-                              className="w-full rounded border border-gray-200 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              className="w-full rounded border border-input bg-background px-2 py-1 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
                               placeholder="Item description"
                             />
                             {errors.items?.[index]?.description && (
-                              <p className="text-xs text-red-600">{errors.items[index]?.description?.message}</p>
+                              <p className="text-xs text-destructive">{errors.items[index]?.description?.message}</p>
                             )}
                           </td>
                           <td className="px-2 py-1.5">
@@ -228,7 +228,7 @@ export function InvoiceForm({ invoice, onClose }: InvoiceFormProps) {
                               type="number"
                               step="0.01"
                               {...register(`items.${index}.quantity`, { valueAsNumber: true })}
-                              className="w-full rounded border border-gray-200 px-2 py-1 text-sm text-right focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              className="w-full rounded border border-input bg-background px-2 py-1 text-sm text-right text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
                             />
                           </td>
                           <td className="px-2 py-1.5">
@@ -236,10 +236,10 @@ export function InvoiceForm({ invoice, onClose }: InvoiceFormProps) {
                               type="number"
                               step="0.01"
                               {...register(`items.${index}.unitPrice`, { valueAsNumber: true })}
-                              className="w-full rounded border border-gray-200 px-2 py-1 text-sm text-right focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              className="w-full rounded border border-input bg-background px-2 py-1 text-sm text-right text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
                             />
                           </td>
-                          <td className="px-3 py-1.5 text-right text-gray-700 whitespace-nowrap">
+                          <td className="px-3 py-1.5 text-right text-foreground whitespace-nowrap">
                             {lineTotal.toFixed(2)}
                           </td>
                           <td className="px-1 py-1.5 text-center">
@@ -247,7 +247,7 @@ export function InvoiceForm({ invoice, onClose }: InvoiceFormProps) {
                               <button
                                 type="button"
                                 onClick={() => remove(index)}
-                                className="text-gray-300 hover:text-red-500"
+                                className="text-muted-foreground/40 hover:text-destructive transition-colors"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </button>
@@ -257,12 +257,12 @@ export function InvoiceForm({ invoice, onClose }: InvoiceFormProps) {
                       );
                     })}
                   </tbody>
-                  <tfoot className="border-t border-gray-200 bg-gray-50">
+                  <tfoot className="border-t border-border bg-muted/30">
                     <tr>
-                      <td colSpan={3} className="px-3 py-2 text-right text-sm font-medium text-gray-700">
+                      <td colSpan={3} className="px-3 py-2 text-right text-sm font-medium text-muted-foreground">
                         Total
                       </td>
-                      <td className="px-3 py-2 text-right text-sm font-semibold text-gray-900">
+                      <td className="px-3 py-2 text-right text-sm font-semibold text-foreground">
                         {total.toFixed(2)}
                       </td>
                       <td />
@@ -271,19 +271,19 @@ export function InvoiceForm({ invoice, onClose }: InvoiceFormProps) {
                 </table>
               </div>
               {errors.items?.root && (
-                <p className="mt-1 text-xs text-red-600">{errors.items.root.message}</p>
+                <p className="mt-1 text-xs text-destructive">{errors.items.root.message}</p>
               )}
             </div>
 
             {mutation.error && (
-              <p className="text-sm text-red-600">
+              <p className="text-sm text-destructive">
                 {(mutation.error as { response?: { data?: { error?: string } } })
                   ?.response?.data?.error ?? "Something went wrong."}
               </p>
             )}
           </div>
 
-          <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
+          <div className="flex justify-end gap-3 px-6 py-4 border-t border-border">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>

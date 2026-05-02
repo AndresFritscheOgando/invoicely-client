@@ -12,6 +12,7 @@ import type {
 } from "@/types";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   ResponsiveContainer,
   BarChart,
@@ -43,21 +44,6 @@ const PAYMENT_STATUSES: PaymentStatus[] = [
   "Overdue",
 ];
 
-const STATUS_COLORS: Record<InvoiceStatus, string> = {
-  Draft: "bg-gray-100 text-gray-600",
-  Submitted: "bg-blue-100 text-blue-700",
-  Approved: "bg-green-100 text-green-800",
-  Rejected: "bg-red-100 text-red-700",
-  Cancelled: "bg-yellow-100 text-yellow-700",
-};
-
-const PAYMENT_COLORS: Record<PaymentStatus, string> = {
-  Unpaid: "bg-gray-100 text-gray-600",
-  PartiallyPaid: "bg-blue-100 text-blue-700",
-  Paid: "bg-green-100 text-green-800",
-  Overdue: "bg-red-100 text-red-700",
-};
-
 function MetricCard({
   title,
   value,
@@ -72,16 +58,16 @@ function MetricCard({
   color: string;
 }) {
   return (
-    <div className="bg-white rounded-lg shadow p-5 flex items-start gap-4">
-      <div className={`p-3 rounded-full ${color} shrink-0`}>
-        <Icon className="h-5 w-5 text-white" />
+    <div className="bg-card rounded-xl border border-border p-5 flex items-start gap-4">
+      <div className={`p-3 rounded-xl ${color} shrink-0`}>
+        <Icon className="h-5 w-5" />
       </div>
       <div>
-        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           {title}
         </p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-        {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+        <p className="text-2xl font-bold text-foreground">{value}</p>
+        {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
       </div>
     </div>
   );
@@ -95,8 +81,8 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-sm font-semibold text-gray-900 mb-4">{title}</h2>
+    <div className="bg-card rounded-xl border border-border p-6">
+      <h2 className="text-sm font-semibold text-foreground mb-4">{title}</h2>
       {children}
     </div>
   );
@@ -147,11 +133,10 @@ export default function ReportsPage() {
 
   const handleExportCsv = () => {
     const params = new URLSearchParams(buildParams() as Record<string, string>);
-    const token = localStorage.getItem("token");
     const base = process.env.NEXT_PUBLIC_API_URL + "/api";
     const url = `${base}/reports/export/csv?${params.toString()}`;
 
-    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(url, { credentials: "include" })
       .then((res) => res.blob())
       .then((blob) => {
         const a = document.createElement("a");
@@ -178,7 +163,7 @@ export default function ReportsPage() {
 
   if (!user || (user.role !== "Admin" && user.role !== "FinanceManager")) {
     return (
-      <div className="p-8 text-gray-500">
+      <div className="p-8 text-muted-foreground">
         Access restricted to Admin and Finance Manager.
       </div>
     );
@@ -188,8 +173,8 @@ export default function ReportsPage() {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-2xl font-bold text-foreground">Reports</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
             Filter and export invoice data
           </p>
         </div>
@@ -202,39 +187,39 @@ export default function ReportsPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-sm font-semibold text-gray-700 mb-4">Filters</h2>
+      <div className="bg-card rounded-xl border border-border p-6">
+        <h2 className="text-sm font-semibold text-foreground mb-4">Filters</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
               From
             </label>
             <input
               type="date"
               value={dateFrom}
               onChange={(e) => { setDateFrom(e.target.value); setSubmitted(false); }}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
               To
             </label>
             <input
               type="date"
               value={dateTo}
               onChange={(e) => { setDateTo(e.target.value); setSubmitted(false); }}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
               Invoice Status
             </label>
             <select
               value={status}
               onChange={(e) => { setStatus(e.target.value); setSubmitted(false); }}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
             >
               <option value="">All</option>
               {INVOICE_STATUSES.map((s) => (
@@ -243,13 +228,13 @@ export default function ReportsPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
               Payment Status
             </label>
             <select
               value={paymentStatus}
               onChange={(e) => { setPaymentStatus(e.target.value); setSubmitted(false); }}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
             >
               <option value="">All</option>
               {PAYMENT_STATUSES.map((s) => (
@@ -258,13 +243,13 @@ export default function ReportsPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
               Vendor
             </label>
             <select
               value={vendorId}
               onChange={(e) => { setVendorId(e.target.value); setSubmitted(false); }}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
             >
               <option value="">All</option>
               {(vendorsQuery.data ?? []).map((v) => (
@@ -287,7 +272,7 @@ export default function ReportsPage() {
                 setVendorId("");
                 setSubmitted(false);
               }}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-muted-foreground hover:text-foreground"
             >
               Clear
             </button>
@@ -296,7 +281,7 @@ export default function ReportsPage() {
       </div>
 
       {reportQuery.isError && (
-        <div className="text-sm text-red-600 bg-red-50 rounded-lg p-4">
+        <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-4">
           Failed to load report. Please try again.
         </div>
       )}
@@ -310,28 +295,28 @@ export default function ReportsPage() {
               value={report.totalCount.toString()}
               sub={`$${report.totalAmount.toLocaleString()}`}
               icon={FileText}
-              color="bg-blue-500"
+              color="bg-primary/10 text-primary"
             />
             <MetricCard
               title="Paid"
               value={report.paidCount.toString()}
               sub={`$${report.paidAmount.toLocaleString()}`}
               icon={CheckCircle}
-              color="bg-green-500"
+              color="bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400"
             />
             <MetricCard
               title="Unpaid / Partial"
               value={report.unpaidCount.toString()}
               sub={`$${report.unpaidAmount.toLocaleString()}`}
               icon={TrendingUp}
-              color="bg-yellow-500"
+              color="bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400"
             />
             <MetricCard
               title="Overdue"
               value={report.overdueCount.toString()}
               sub={`$${report.overdueAmount.toLocaleString()}`}
               icon={AlertTriangle}
-              color="bg-red-500"
+              color="bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400"
             />
           </div>
 
@@ -345,7 +330,7 @@ export default function ReportsPage() {
                       <XAxis dataKey="label" tick={{ fontSize: 11 }} />
                       <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                       <Tooltip formatter={(v) => [`$${Number(v).toLocaleString()}`, "Amount"]} />
-                      <Bar dataKey="amount" fill="#3b82f6" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+                      <Bar dataKey="amount" fill="var(--color-chart-1)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </ChartCard>
@@ -357,7 +342,7 @@ export default function ReportsPage() {
                       <XAxis type="number" tick={{ fontSize: 11 }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                       <YAxis type="category" dataKey="label" tick={{ fontSize: 11 }} width={90} />
                       <Tooltip formatter={(v) => [`$${Number(v).toLocaleString()}`, "Amount"]} />
-                      <Bar dataKey="amount" fill="#8b5cf6" radius={[0, 4, 4, 0]} isAnimationActive={false} />
+                      <Bar dataKey="amount" fill="var(--color-chart-4)" radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </ChartCard>
@@ -366,20 +351,20 @@ export default function ReportsPage() {
           )}
 
           {/* Table */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-gray-900">
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-foreground">
                 Invoices ({report.rows.length})
               </h2>
             </div>
             {report.rows.length === 0 ? (
-              <div className="p-8 text-center text-gray-400 text-sm">
+              <div className="p-8 text-center text-muted-foreground text-sm">
                 No invoices match the selected filters.
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+                  <thead className="bg-muted/50 border-b border-border text-xs text-muted-foreground uppercase tracking-wide">
                     <tr>
                       <th className="px-4 py-3 text-left font-medium">Invoice #</th>
                       <th className="px-4 py-3 text-left font-medium">Vendor</th>
@@ -391,28 +376,24 @@ export default function ReportsPage() {
                       <th className="px-4 py-3 text-left font-medium">Payment</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-border">
                     {report.rows.map((row) => (
-                      <tr key={row.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-4 py-3 font-mono text-xs text-gray-700">
+                      <tr key={row.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
                           {row.invoiceNumber}
                         </td>
-                        <td className="px-4 py-3 text-gray-900">{row.vendorName}</td>
-                        <td className="px-4 py-3 text-gray-500">{row.createdByName}</td>
-                        <td className="px-4 py-3 text-right font-medium text-gray-900">
+                        <td className="px-4 py-3 text-foreground">{row.vendorName}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{row.createdByName}</td>
+                        <td className="px-4 py-3 text-right font-medium text-foreground">
                           {row.currency} {row.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="px-4 py-3 text-gray-500">{row.issueDate}</td>
-                        <td className="px-4 py-3 text-gray-500">{row.dueDate}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{row.issueDate}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{row.dueDate}</td>
                         <td className="px-4 py-3">
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLORS[row.status]}`}>
-                            {row.status}
-                          </span>
+                          <StatusBadge status={row.status} />
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PAYMENT_COLORS[row.paymentStatus]}`}>
-                            {row.paymentStatus}
-                          </span>
+                          <StatusBadge status={row.paymentStatus} />
                         </td>
                       </tr>
                     ))}
@@ -425,8 +406,8 @@ export default function ReportsPage() {
       )}
 
       {!submitted && (
-        <div className="text-center text-gray-400 text-sm py-12">
-          Set filters above and click <span className="font-medium text-gray-500">Run Report</span> to generate results.
+        <div className="text-center text-muted-foreground text-sm py-12">
+          Set filters above and click <span className="font-medium text-foreground">Run Report</span> to generate results.
         </div>
       )}
     </div>

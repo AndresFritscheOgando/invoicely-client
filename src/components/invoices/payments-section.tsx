@@ -9,6 +9,7 @@ import api from "@/lib/api";
 import type { Payment, PaymentMethod } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Trash2, Plus, X } from "lucide-react";
+import { toast } from "sonner";
 
 const PAYMENT_METHODS: PaymentMethod[] = ["BankTransfer", "CreditCard", "Cash", "Check", "Other"];
 
@@ -53,12 +54,14 @@ export function PaymentsSection({ invoiceId, invoiceAmount, currency, canRecord 
 
   const recordMutation = useMutation({
     mutationFn: (data: FormValues) => api.post(`/invoices/${invoiceId}/payments`, data),
-    onSuccess: () => { invalidate(); setShowForm(false); reset(); },
+    onSuccess: () => { invalidate(); setShowForm(false); reset(); toast.success("Payment recorded"); },
+    onError: () => toast.error("Failed to record payment"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (paymentId: string) => api.delete(`/invoices/${invoiceId}/payments/${paymentId}`),
-    onSuccess: invalidate,
+    onSuccess: () => { invalidate(); toast.success("Payment removed"); },
+    onError: () => toast.error("Failed to remove payment"),
   });
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
@@ -79,11 +82,11 @@ export function PaymentsSection({ invoiceId, invoiceAmount, currency, canRecord 
     new Date(iso + "T00:00:00").toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 
   return (
-    <div className="border-t border-gray-100 pt-6">
+    <div className="border-t border-border pt-6">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-sm font-semibold text-gray-700">Payments</h2>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <h2 className="text-sm font-semibold text-foreground">Payments</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
             Paid: {fmt(totalPaid)} · Remaining: {fmt(Math.max(0, remaining))}
           </p>
         </div>
@@ -98,44 +101,44 @@ export function PaymentsSection({ invoiceId, invoiceAmount, currency, canRecord 
       {showForm && (
         <form
           onSubmit={handleSubmit((d) => recordMutation.mutate(d))}
-          className="bg-gray-50 rounded-lg p-4 mb-4 space-y-3"
+          className="bg-muted/50 rounded-lg p-4 mb-4 space-y-3 border border-border"
         >
           <div className="flex items-center justify-between mb-1">
-            <p className="text-sm font-medium text-gray-700">New Payment</p>
+            <p className="text-sm font-medium text-foreground">New Payment</p>
             <button type="button" onClick={() => { setShowForm(false); reset(); }}>
-              <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+              <X className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
             </button>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-gray-500 block mb-1">Amount</label>
+              <label className="text-xs font-medium text-muted-foreground block mb-1">Amount</label>
               <input
                 type="number"
                 step="0.01"
                 max={remaining}
                 placeholder="0.00"
                 {...register("amount", { valueAsNumber: true })}
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-input bg-background rounded-md px-3 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
               />
-              {errors.amount && <p className="text-xs text-red-500 mt-0.5">{errors.amount.message}</p>}
+              {errors.amount && <p className="text-xs text-destructive mt-0.5">{errors.amount.message}</p>}
             </div>
 
             <div>
-              <label className="text-xs font-medium text-gray-500 block mb-1">Payment Date</label>
+              <label className="text-xs font-medium text-muted-foreground block mb-1">Payment Date</label>
               <input
                 type="date"
                 {...register("paymentDate")}
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-input bg-background rounded-md px-3 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
               />
-              {errors.paymentDate && <p className="text-xs text-red-500 mt-0.5">{errors.paymentDate.message}</p>}
+              {errors.paymentDate && <p className="text-xs text-destructive mt-0.5">{errors.paymentDate.message}</p>}
             </div>
 
             <div>
-              <label className="text-xs font-medium text-gray-500 block mb-1">Method</label>
+              <label className="text-xs font-medium text-muted-foreground block mb-1">Method</label>
               <select
                 {...register("paymentMethod")}
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                className="w-full border border-input bg-background rounded-md px-3 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
               >
                 {PAYMENT_METHODS.map((m) => (
                   <option key={m} value={m}>{PAYMENT_METHOD_LABELS[m]}</option>
@@ -144,18 +147,18 @@ export function PaymentsSection({ invoiceId, invoiceAmount, currency, canRecord 
             </div>
 
             <div>
-              <label className="text-xs font-medium text-gray-500 block mb-1">Reference # (optional)</label>
+              <label className="text-xs font-medium text-muted-foreground block mb-1">Reference # (optional)</label>
               <input
                 type="text"
                 placeholder="e.g. TXN-123"
                 {...register("referenceNumber")}
-                className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-input bg-background rounded-md px-3 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
               />
             </div>
           </div>
 
           {recordMutation.isError && (
-            <p className="text-xs text-red-500">Failed to record payment. Please try again.</p>
+            <p className="text-xs text-destructive">Failed to record payment. Please try again.</p>
           )}
 
           <div className="flex justify-end gap-2">
@@ -171,35 +174,35 @@ export function PaymentsSection({ invoiceId, invoiceAmount, currency, canRecord 
 
       {isLoading ? (
         <div className="space-y-2">
-          {[1, 2].map((i) => <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />)}
+          {[1, 2].map((i) => <div key={i} className="h-10 bg-muted rounded animate-pulse" />)}
         </div>
       ) : payments.length === 0 ? (
-        <p className="text-sm text-gray-400">No payments recorded yet.</p>
+        <p className="text-sm text-muted-foreground">No payments recorded yet.</p>
       ) : (
         <div className="space-y-2">
           {payments.map((p) => (
-            <div key={p.id} className="flex items-center justify-between py-2.5 px-3 bg-gray-50 rounded-md">
+            <div key={p.id} className="flex items-center justify-between py-2.5 px-3 bg-muted/50 rounded-md border border-border/50">
               <div className="flex items-center gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-800">{fmt(p.amount)}</p>
-                  <p className="text-xs text-gray-400">{formatDate(p.paymentDate)}</p>
+                  <p className="text-sm font-medium text-foreground">{fmt(p.amount)}</p>
+                  <p className="text-xs text-muted-foreground">{formatDate(p.paymentDate)}</p>
                 </div>
                 <div>
-                  <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                  <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                     {PAYMENT_METHOD_LABELS[p.paymentMethod as PaymentMethod] ?? p.paymentMethod}
                   </span>
                 </div>
                 {p.referenceNumber && (
-                  <p className="text-xs text-gray-500 font-mono">{p.referenceNumber}</p>
+                  <p className="text-xs text-muted-foreground font-mono">{p.referenceNumber}</p>
                 )}
               </div>
               <div className="flex items-center gap-3">
-                <p className="text-xs text-gray-400">{p.createdByName}</p>
+                <p className="text-xs text-muted-foreground">{p.createdByName}</p>
                 {canRecord && (
                   <button
                     onClick={() => deleteMutation.mutate(p.id)}
                     disabled={deleteMutation.isPending}
-                    className="text-gray-300 hover:text-red-400 transition-colors"
+                    className="text-muted-foreground/40 hover:text-destructive transition-colors"
                     title="Delete payment"
                   >
                     <Trash2 className="h-3.5 w-3.5" />

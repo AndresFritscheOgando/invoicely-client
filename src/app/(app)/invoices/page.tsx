@@ -1,32 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useKeyboardShortcut } from "@/hooks/use-keyboard-shortcut";
 import api from "@/lib/api";
 import type { InvoiceSummary, InvoiceStatus, PaginatedResult } from "@/types";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { InvoiceForm } from "@/components/invoices/invoice-form";
 import { Plus, Search, Pencil, Trash2, ChevronLeft, ChevronRight, Eye } from "lucide-react";
-
-const STATUS_COLORS: Record<InvoiceStatus, string> = {
-  Draft: "bg-gray-100 text-gray-600",
-  Submitted: "bg-blue-100 text-blue-700",
-  Approved: "bg-green-100 text-green-800",
-  Rejected: "bg-red-100 text-red-700",
-  Cancelled: "bg-yellow-100 text-yellow-700",
-};
+import { toast } from "sonner";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 const ALL_STATUSES: InvoiceStatus[] = ["Draft", "Submitted", "Approved", "Rejected", "Cancelled"];
-
-function StatusBadge({ status }: { status: InvoiceStatus }) {
-  return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLORS[status]}`}>
-      {status}
-    </span>
-  );
-}
 
 function ConfirmDialog({
   title,
@@ -43,9 +30,9 @@ function ConfirmDialog({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-sm bg-white rounded-lg shadow-xl p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">{title}</h2>
-        <p className="text-sm text-gray-600 mb-6">{message}</p>
+      <div className="w-full max-w-sm bg-card rounded-xl shadow-xl ring-1 ring-black/5 p-6">
+        <h2 className="text-lg font-semibold text-foreground mb-2">{title}</h2>
+        <p className="text-sm text-muted-foreground mb-6">{message}</p>
         <div className="flex justify-end gap-3">
           <Button variant="outline" onClick={onCancel} disabled={isPending}>Cancel</Button>
           <Button variant="destructive" onClick={onConfirm} disabled={isPending}>
@@ -71,6 +58,8 @@ export default function InvoicesPage() {
 
   const [showCreate, setShowCreate] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  useKeyboardShortcut("k", () => searchRef.current?.focus(), { metaOrCtrl: true });
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -100,7 +89,9 @@ export default function InvoicesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
       setDeletingId(null);
+      toast.success("Invoice deleted");
     },
+    onError: () => toast.error("Failed to delete invoice"),
   });
 
   const invoices = data?.items ?? [];
@@ -113,8 +104,8 @@ export default function InvoicesPage() {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Invoices</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Invoices</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             {data ? `${data.totalCount} invoice${data.totalCount !== 1 ? "s" : ""}` : "Loading..."}
           </p>
         </div>
@@ -126,20 +117,24 @@ export default function InvoicesPage() {
         )}
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
+            ref={searchRef}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by number, vendor, or description..."
-            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full pl-9 pr-16 py-2 text-sm border border-input bg-background rounded-md text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
           />
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-0.5 text-xs text-muted-foreground/50 font-mono pointer-events-none">
+            <span>⌘</span><span>K</span>
+          </kbd>
         </div>
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value as InvoiceStatus | ""); setPage(1); }}
-          className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+          className="px-3 py-2 text-sm border border-input bg-background rounded-md text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
         >
           <option value="">All Statuses</option>
           {ALL_STATUSES.map((s) => (
@@ -148,95 +143,116 @@ export default function InvoicesPage() {
         </select>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-card rounded-xl border border-border overflow-auto">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-muted/50 border-b border-border sticky top-0 z-10">
             <tr>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Invoice #</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Vendor</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Amount</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Issue Date</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Due Date</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-              <th className="text-right px-4 py-3 font-medium text-gray-600">Actions</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Invoice #</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Vendor</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Amount</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Issue Date</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Due Date</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
+              <th className="text-right px-4 py-3 font-medium text-muted-foreground">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-border">
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i}>
                   {Array.from({ length: 7 }).map((_, j) => (
                     <td key={j} className="px-4 py-3">
-                      <div className="h-4 bg-gray-100 rounded animate-pulse" />
+                      <div className="h-4 bg-muted rounded animate-pulse" />
                     </td>
                   ))}
                 </tr>
               ))
             ) : invoices.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-gray-400">
-                  No invoices found
+                <td colSpan={7} className="px-4 py-16 text-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <Search className="h-10 w-10 text-muted-foreground/30" />
+                    <p className="font-medium text-foreground">No invoices found</p>
+                    <p className="text-sm text-muted-foreground">
+                      {search || statusFilter ? "Try adjusting your search or filters" : "Create your first invoice to get started"}
+                    </p>
+                    {canCreate && !search && !statusFilter && (
+                      <button
+                        onClick={() => setShowCreate(true)}
+                        className="mt-2 text-sm text-primary font-medium hover:underline"
+                      >
+                        New Invoice
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ) : (
-              invoices.map((invoice) => (
-                <tr
-                  key={invoice.id}
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => router.push(`/invoices/${invoice.id}`)}
-                >
-                  <td className="px-4 py-3 font-mono text-xs text-gray-800">{invoice.invoiceNumber}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900">{invoice.vendorName}</td>
-                  <td className="px-4 py-3 text-gray-700 font-medium">
-                    {formatAmount(invoice.amount, invoice.currency)}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">{invoice.issueDate}</td>
-                  <td className="px-4 py-3 text-gray-600">{invoice.dueDate}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={invoice.status as InvoiceStatus} />
-                  </td>
-                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        size="icon-sm"
-                        variant="ghost"
-                        onClick={() => router.push(`/invoices/${invoice.id}`)}
-                        title="View invoice"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                      </Button>
-                      {invoice.status === "Draft" && canCreate && (
+              invoices.map((invoice) => {
+                const isOverdue = invoice.status === "Approved" && new Date(invoice.dueDate) < new Date();
+                return (
+                  <tr
+                    key={invoice.id}
+                    className="hover:bg-muted/30 cursor-pointer"
+                    onClick={() => router.push(`/invoices/${invoice.id}`)}
+                  >
+                    <td className="px-4 py-3 font-mono text-xs text-foreground">{invoice.invoiceNumber}</td>
+                    <td className="px-4 py-3 font-medium text-foreground">{invoice.vendorName}</td>
+                    <td className="px-4 py-3 text-foreground font-medium">
+                      {formatAmount(invoice.amount, invoice.currency)}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{invoice.issueDate}</td>
+                    <td className={`px-4 py-3 ${isOverdue ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                      {invoice.dueDate}
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={invoice.status as InvoiceStatus} />
+                    </td>
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           size="icon-sm"
                           variant="ghost"
-                          onClick={() => router.push(`/invoices/${invoice.id}?edit=1`)}
-                          title="Edit invoice"
+                          onClick={() => router.push(`/invoices/${invoice.id}`)}
+                          title="View invoice"
                         >
-                          <Pencil className="h-3.5 w-3.5" />
+                          <Eye className="h-3.5 w-3.5" />
                         </Button>
-                      )}
-                      {invoice.status === "Draft" && canCreate && (
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          onClick={() => setDeletingId(invoice.id)}
-                          title="Delete invoice"
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
+                        {invoice.status === "Draft" && canCreate && (
+                          <Button
+                            size="icon-sm"
+                            variant="ghost"
+                            onClick={() => router.push(`/invoices/${invoice.id}?edit=1`)}
+                            title="Edit invoice"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
+                        {invoice.status === "Draft" && canCreate && (
+                          <Button
+                            size="icon-sm"
+                            variant="ghost"
+                            onClick={() => setDeletingId(invoice.id)}
+                            title="Delete invoice"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
 
         {!isLoading && totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50">
-            <p className="text-sm text-gray-500">Page {page} of {totalPages}</p>
+          <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/30">
+            <p className="text-sm text-muted-foreground">
+              Showing {((page - 1) * 20) + 1}–{Math.min(page * 20, data?.totalCount ?? 0)} of {data?.totalCount ?? 0} invoices
+            </p>
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
                 <ChevronLeft className="h-4 w-4" />
